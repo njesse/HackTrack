@@ -1,6 +1,9 @@
 import java.awt.Color;
 import java.util.ArrayList;
 
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -12,7 +15,43 @@ public class ResultAnalytic {
 	private int startIndex;
 	private int endIndex;
 	private String endtime = "";
+	private double bestAccuracy = 0;
+	DefaultTableModel model = new DefaultTableModel();
+	private ArrayList<ResultLine> results = new ArrayList();
+	
+	public DefaultTableModel gettableModel() {
+		model.setColumnCount(4);		
+		model.setColumnIdentifiers(new Object[]{"Type",  "Start", "End", "Accuracy"});
+		
+		String start = results.get(0).time;
+	
+		String type =results.get(0).activityAsString();	
+		
+		for (int i = 1;i<results.size();i++)
+		{
+			String currentType = results.get(i).activityAsString();	
+			if (!currentType.equals(type))
+			{
+				// Type changed, fill one row with old type
+				model.addRow(new Object[] {type,start,results.get(i-1).time,results.get(i-1).accuracy });
+				// set values for new type
+				start=results.get(i).time;
+				type =results.get(i).activityAsString();	
+			}
+		}
+		// finish the last line
+		int lastindex= results.size()-1;
+		model.addRow(new Object[] {type,start,results.get(lastindex).time,results.get(lastindex).accuracy });
+		
+		
+		
+		return model;
+	}
 
+	public Double getBestAccuracy() {
+		return bestAccuracy;
+	}
+	
 	public String getStarttime()
 	{
 		return starttime;
@@ -33,12 +72,12 @@ public class ResultAnalytic {
 		return endIndex;
 	}
 	
-	private ArrayList<ResultLine> results = new ArrayList();
+	
 	
 	public ResultAnalytic(String restResult) {
 		boolean trainfound = false;
 		int lastTrain;
-	/*	JSONArray JSONArray_inner = new JSONArray();
+		JSONArray JSONArray_inner = new JSONArray();
 		JSONParser parser = new JSONParser(); 
 		try {
 			JSONObject jsonObject_outer = (JSONObject) parser.parse(restResult);
@@ -84,15 +123,20 @@ public class ResultAnalytic {
 						 endtime= (String)entry_inner.get("timestamp");
 						 endIndex = i;
 					  
-				 }				 
-				 
+				 }		
+				 		 
+				 double accuracy = (Double)entry_inner.get("accuracy");
+				 if (accuracy>bestAccuracy)
+				 {
+					 bestAccuracy=accuracy;
+				 }
 				 
 				 ResultLine line = new ResultLine(act,(Double)entry_inner.get("accuracy"),(String)entry_inner.get("timestamp"));
 				 results.add(line);
 			 }
 		 } //*/
 		 // Generate Test-Data:
-		for (int i = 0;i<20;i++) {
+	/*for (int i = 0;i<20;i++) {
 		  results.add(new ResultLine(0,30,"time"));	
 		}
 		for (int i = 0;i<20;i++) {

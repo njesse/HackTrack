@@ -37,6 +37,9 @@ public class hacktrackGUI implements ActionListener{
 	private JButton btnMultiMode = new JButton("Multi Mode");
 	private JLabel lblStarttime = new JLabel(" ");
 	private JLabel lblEndtime = new JLabel(" ");
+	private JLabel lblAccuracy = new JLabel(" ");
+	private JButton btnDetails = new JButton("Details");
+	private ResultAnalytic result;
 	
 	/**
 	 * Launch the application.
@@ -87,16 +90,19 @@ public class hacktrackGUI implements ActionListener{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-	//	JLabel lblStarttime = new JLabel(" ");
+
 		lblStarttime.setHorizontalAlignment(SwingConstants.CENTER);
-		//lblStarttime.setBounds(31, 310, 200, 20);
 		frame.getContentPane().add(lblStarttime);
-		
-	//	JLabel lblEndtime = new JLabel(" ");
-		lblEndtime.setHorizontalAlignment(SwingConstants.CENTER);
-		//lblEndtime.setBounds(270, 310, 200, 20);
+		lblEndtime.setHorizontalAlignment(SwingConstants.CENTER);		
 		frame.getContentPane().add(lblEndtime);
-				
+		lblAccuracy.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		lblAccuracy.setHorizontalAlignment(SwingConstants.CENTER);		
+		frame.getContentPane().add(lblAccuracy);
+		
+		btnDetails.setBounds(229, 344, 115, 29);
+		frame.getContentPane().add(btnDetails);
+		btnDetails.setVisible(false);
+		btnDetails.addActionListener(this);				
 		
 		
 		infoboxmessage infobox = new infoboxmessage();
@@ -248,8 +254,9 @@ public class hacktrackGUI implements ActionListener{
 	public void showResult(String restResult) {
 		btnTrainMode.setVisible(false);
 		btnMultiMode.setVisible(false);
+		btnDetails.setVisible(true);
 		generateExamples();
-		ResultAnalytic result = new ResultAnalytic(restResult);
+		 result = new ResultAnalytic(restResult);
 		// put the result in an object which cares about % and Position
 		
 		// Loop to create bar with results... this may need to go in different class....
@@ -280,6 +287,9 @@ public class hacktrackGUI implements ActionListener{
 		
 		int positionEnd = 15+ 45*(int) (Math.floor((result.getEndIndex()/10-1)));//50 + result.getStartIndex();
 		lblEndtime.setBounds( positionEnd,150, 200, 20);
+		
+		lblAccuracy.setText("Best accuracy achieved: "+ result.getBestAccuracy());		
+		lblAccuracy.setBounds(50,150, 500, 200);
 		frame.repaint();
 	}
 	
@@ -290,15 +300,20 @@ public class hacktrackGUI implements ActionListener{
 		if (arg0.getActionCommand().equals("Train Mode"))
 		{
 			rest.setModel("tm");
-		//	restResult = rest.sendValues();
-			restResult =rest.dontGetValues();//Use self-generated test data
+			restResult = rest.sendValues();
+		//	restResult =rest.dontGetValues();//Use self-generated test data
 			
 		}
 		else if(arg0.getActionCommand().equals("Multi Mode"))
 		{
 			rest.setModel("mm");
-			restResult =rest.dontGetValues(); //Use self-generated test data
-		// restResult = rest.sendValues();
+	//	restResult =rest.dontGetValues(); //Use self-generated test data
+		 restResult = rest.sendValues();
+		}
+		else if(arg0.getActionCommand().equals("Details"))
+		{
+			detailsGUI details = new detailsGUI(result);
+			details.show();
 		}
 		
 		System.out.println(restResult);
