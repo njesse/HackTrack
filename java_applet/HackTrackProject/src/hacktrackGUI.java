@@ -41,28 +41,17 @@ public class hacktrackGUI implements ActionListener{
 	private JButton btnDetails = new JButton("Details");
 	private ResultAnalytic result;
 	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					hacktrackGUI window = new hacktrackGUI();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	
 
 	/**
 	 * Create the application.
 	 */
 	
-	public hacktrackGUI() {
-		initialize();
+	public hacktrackGUI() {	
+		initialise();
+		chooseFile();
+		showChooseModelView();
+		frame.setVisible(true);
 	}
 	/**
 	 * Message box method.
@@ -79,18 +68,16 @@ public class hacktrackGUI implements ActionListener{
 	/**
 	 * Initialise the contents of the frame.
 	 */
-	
-	@SuppressWarnings("deprecation")
-	private void initialize() {
-		rest = new RestInterface();
+	private void initialise() {
 		
-		
+		// First init the frame itself, then the components
 		frame = new JFrame();
 		frame.setBounds(100, 100, 600, 720);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-
+		// Labels used for displaying start and endtime of trip with train
+		// aswell as the resulting accurancy 
 		lblStarttime.setHorizontalAlignment(SwingConstants.CENTER);
 		frame.getContentPane().add(lblStarttime);
 		lblEndtime.setHorizontalAlignment(SwingConstants.CENTER);		
@@ -99,10 +86,21 @@ public class hacktrackGUI implements ActionListener{
 		lblAccuracy.setHorizontalAlignment(SwingConstants.CENTER);		
 		frame.getContentPane().add(lblAccuracy);
 		
+		//Button to show more detailed result 
 		btnDetails.setBounds(229, 344, 115, 29);
 		frame.getContentPane().add(btnDetails);
 		btnDetails.setVisible(false);
-		btnDetails.addActionListener(this);				
+		btnDetails.addActionListener(this);			
+		
+		// init the restInterface, its global because its used 
+		// for transmitting and receiving 
+		//
+		rest = new RestInterface();
+	}
+	
+	
+	@SuppressWarnings("deprecation")
+	private void chooseFile() {		
 		
 		
 		infoboxmessage infobox = new infoboxmessage();
@@ -119,7 +117,8 @@ public class hacktrackGUI implements ActionListener{
 		fd.show();
 		String selectedItem = fd.getFile();
 		if (selectedItem == null) {
-			// no file selected
+			// no file selected, 
+			System.exit(-1);
 		} else {
 			File ffile = new File( fd.getDirectory() + File.separator +
 			        fd.getFile());
@@ -140,6 +139,7 @@ public class hacktrackGUI implements ActionListener{
 					System.out.println("File read error...");
 					iox.printStackTrace();
 					infobox.infoBox("File read error", "HackTrack - SilverRail Tool");
+					
 				}
 			} catch (FileNotFoundException fnf) {
 				System.out.println("File not found...");
@@ -147,12 +147,17 @@ public class hacktrackGUI implements ActionListener{
 				infobox.infoBox("File not found", "HackTrack - SilverRail Tool");
 			}
 			
-			infobox.infoBox("File read succesfully", "HackTrack - SilverRail Tool");
-		
-		
+				
+			infobox.infoBox("File read succesfully: Select the Model you wish to use to analyse your data", "HackTrack - SilverRail Tool");
+			
+				
+		}	
+	
+	}
+	
+	private void showChooseModelView() {
 		// Select Mode that will be used for data analysis - two options, multi modal mode or train mode
 		
-		infobox.infoBox("Select the Model you wish to use to analyse your data", "HackTrack - SilverRail Tool");
 		
 		btnTrainMode = new JButton("Train Mode");
 		btnTrainMode.setBounds(74, 6, 117, 29);
@@ -162,14 +167,9 @@ public class hacktrackGUI implements ActionListener{
 		btnMultiMode.setBounds(240, 6, 117, 29);
 		frame.getContentPane().add(btnMultiMode);
 		btnMultiMode.addActionListener(this);
-		
-		
-		}	
-	
 	}
-
-	
-	public void generateExamples()
+		
+	private void showLegendForResultGraph()
 	{
 		for (int i=0; i<=255 ; i++) {
 			int width = 2;
@@ -251,15 +251,14 @@ public class hacktrackGUI implements ActionListener{
 	frame.repaint();
 	}
 	
-	public void showResult(String restResult) {
+	private void showResult(String restResult) {
 		btnTrainMode.setVisible(false);
 		btnMultiMode.setVisible(false);
 		btnDetails.setVisible(true);
-		generateExamples();
-		 result = new ResultAnalytic(restResult);
-		// put the result in an object which cares about % and Position
+		showLegendForResultGraph();
 		
-		// Loop to create bar with results... this may need to go in different class....
+		result = new ResultAnalytic(restResult);
+		
 		for (int i=0; i<100 ; i++) {
 				int width = 5;
 				JTextField textField = new JTextField() {
@@ -282,10 +281,10 @@ public class hacktrackGUI implements ActionListener{
 		lblStarttime.setText("Start: "+ result.getStarttime());
 		lblEndtime.setText(" End: "+ result.getEndtime());
 		
-		int positionStart = 15+ 45*(int) (Math.floor((result.getStartIndex()/10-1)));//50 + result.getStartIndex();
+		int positionStart = 15+ 45*(int) (Math.floor((result.getStartIndex()/10-1)));
 		lblStarttime.setBounds( positionStart,50, 200, 20);
 		
-		int positionEnd = 15+ 45*(int) (Math.floor((result.getEndIndex()/10-1)));//50 + result.getStartIndex();
+		int positionEnd = 15+ 45*(int) (Math.floor((result.getEndIndex()/10-1)));
 		lblEndtime.setBounds( positionEnd,150, 200, 20);
 		
 		lblAccuracy.setText("Best accuracy achieved: "+ result.getBestAccuracy());		
@@ -295,20 +294,26 @@ public class hacktrackGUI implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+		
 	    String restResult ="";
 		if (arg0.getActionCommand().equals("Train Mode"))
 		{
 			rest.setModel("tm");
 			restResult = rest.sendValues();
-		//	restResult =rest.dontGetValues();//Use self-generated test data
+		//	restResult =rest.dontGetValues(); //Use self-generated test data
+			if (restResult.length()>0) {
+				showResult(restResult);
+			}
 			
 		}
 		else if(arg0.getActionCommand().equals("Multi Mode"))
 		{
 			rest.setModel("mm");
 	//	restResult =rest.dontGetValues(); //Use self-generated test data
-		 restResult = rest.sendValues();
+			restResult = rest.sendValues();
+			if (restResult.length()>0) {
+				showResult(restResult);
+			}
 		}
 		else if(arg0.getActionCommand().equals("Details"))
 		{
@@ -316,10 +321,7 @@ public class hacktrackGUI implements ActionListener{
 			details.show();
 		}
 		
-		System.out.println(restResult);
-		if (restResult.length()>0) {
-			showResult(restResult);
-		}
+		
 	}
 }
 

@@ -53,7 +53,7 @@ public class RestInterface {
 	}
 	
 	public RestInterface() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	public void setModel(String newModel)
@@ -105,12 +105,12 @@ public class RestInterface {
 
 	
 	public String dontGetValues() {
-		// debugging: use the json to be send as result
+		// debugging: use self generated test values
 		return allLines.toJSONString();
 	}
 	
 	public String sendValues() {
-
+        // actual Rest-part
 		Client client = Client.create();
         
 		WebResource webResource = client
