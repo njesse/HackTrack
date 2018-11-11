@@ -17,7 +17,7 @@ data = json.dumps(input_data)
 
 #data = json.dumps(data)
 
-json_response = requests.post("http://localhost:3030/api/v1/predict/model1", headers=headers, data=data)
+json_response = requests.post("http://localhost:3030/api/v1/predict/model2", headers=headers, data=data)
 
 print(f"Input sent : {input_data}")
 print("----------JSON_response-----------")
