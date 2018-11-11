@@ -37,10 +37,7 @@ def cleaning(df_acc):
 def predict(model_name):
     # Expects user data i.e gyro, accelero etc (array of array)
     # user_data = request.args.get('user_data')
-    user_data = request.files
-    print("=======================")
-    print(user_data)
-    print("=======================")
+    user_data = request.json
 
     try:
         # df_acc = pd.read_csv("./acc_3.csv")
