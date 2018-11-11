@@ -28,7 +28,7 @@ public class detailsGUI extends JFrame {
 		JScrollPane scrollPane = new JScrollPane();
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 		
-		table = new JTable(results.gettableModel());
+		table = new JTable(results.getTableModel());
 		scrollPane.setViewportView(table);
 	}
 

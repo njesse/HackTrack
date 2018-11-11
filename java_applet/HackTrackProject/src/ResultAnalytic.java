@@ -19,7 +19,7 @@ public class ResultAnalytic {
 	DefaultTableModel model = new DefaultTableModel();
 	private ArrayList<ResultLine> results = new ArrayList();
 	
-	public DefaultTableModel gettableModel() {
+	public DefaultTableModel getTableModel() {
 		model.setColumnCount(4);		
 		model.setColumnIdentifiers(new Object[]{"Type",  "Start", "End", "Accuracy"});
 		
@@ -75,6 +75,20 @@ public class ResultAnalytic {
 	
 	
 	public ResultAnalytic(String restResult) {
+		
+	/*
+	 * [{"readingVal1":
+                      {"Act": "train", "accuracy": 85.2, "timestamp": "2018-12-01"}
+                  },
+        {"readingVal2":
+                      {"Act": "walk", "accuracy": 65.34, "timestamp": "2011-08-02"}
+                  },
+        {"readingVal3":
+                      {"Act": "bus", "accuracy": 32.2, "timestamp": "2042-02-11"}
+                  }]
+	 * 
+	 * 
+	 */
 		boolean trainfound = false;
 		int lastTrain;
 		JSONArray JSONArray_inner = new JSONArray();
@@ -82,11 +96,7 @@ public class ResultAnalytic {
 		try {
 			JSONObject jsonObject_outer = (JSONObject) parser.parse(restResult);
 			
-		//	System.out.println(jsonObject);
-			
-			 JSONArray_inner = (JSONArray) jsonObject_outer.get("output");
-           
-			
+		JSONArray_inner = (JSONArray) jsonObject_outer.get("output");        		
 			
 			
 		} catch (ParseException e) {
@@ -97,7 +107,7 @@ public class ResultAnalytic {
 		 {
 			 for (int i = 0; i<JSONArray_inner.size();i++)
 			 {
-				 
+				 // Read one line (one set of values)
 				 JSONObject entry_outer = (JSONObject) JSONArray_inner.get(i);
 				 JSONObject entry_inner = (JSONObject) entry_outer.get("readingVal"+(i+1));
 				 int act = 0;
@@ -111,8 +121,10 @@ public class ResultAnalytic {
 				 case "bus":
 					 act = 3;				 
 				 }
+				 
 				 if (act == 1 )
 				 {
+					// First time action= train means: found the start of the journey
 					 if (!trainfound)
 					 {
 					 trainfound = true;
@@ -120,11 +132,13 @@ public class ResultAnalytic {
 					 startIndex = i;
 					 }
 					 
-						 endtime= (String)entry_inner.get("timestamp");
-						 endIndex = i;
-					  
+					 // the current train value will be the end value if 
+					 // its not overwritten by following values
+					 endtime= (String)entry_inner.get("timestamp");
+				     endIndex = i;					  
 				 }		
-				 		 
+				 
+				 // We want to display the highest accuracy achieved in a file
 				 double accuracy = (Double)entry_inner.get("accuracy");
 				 if (accuracy>bestAccuracy)
 				 {
@@ -135,9 +149,9 @@ public class ResultAnalytic {
 				 results.add(line);
 			 }
 		 } //*/
-		 // Generate Test-Data:
+		 // Generate Test-Data: Comment either this or the json reading part.
 	/*for (int i = 0;i<20;i++) {
-		  results.add(new ResultLine(0,30,"time"));	
+		  results.add(new ResultLine(0,30,"time"));
 		}
 		for (int i = 0;i<20;i++) {
 			  results.add(new ResultLine(1,30,"time"));	
@@ -163,14 +177,14 @@ public class ResultAnalytic {
 		endIndex = 80;
 		endtime ="30/10/2018 21:32:02"; //*/
 				
-		// put restResult in ResultLines
+		
 	
-		// find first and last appereance of train
 	}
 	
 	private int getIndexAtPercent(double percent)
 	{
-	
+	    // the bar has 100 segments, this function returns one entry per segment
+		// a bar with more then 100 segments would also work
 		int numberofvalues = results.size();
 		
 		int index = (int) Math.floor(percent * numberofvalues / 100);
@@ -187,7 +201,6 @@ public class ResultAnalytic {
 	{
 		
 	 ResultLine result = results.get(getIndexAtPercent(percent));
-
 	 if (result.activity==0) {
 		 return Color.WHITE;
 	 }
