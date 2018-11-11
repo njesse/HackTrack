@@ -1,6 +1,7 @@
 from flask import current_app, jsonify, request, abort, Response
 from . import api
 
+import io
 import math
 import pandas as pd
 import numpy as np
@@ -37,11 +38,13 @@ def cleaning(df_acc):
 def predict(model_name):
     # Expects user data i.e gyro, accelero etc (array of array)
     # user_data = request.args.get('user_data')
-    user_data = request.json
+    user_data = request.get_data()
 
     try:
-        # df_acc = pd.read_csv("./acc_3.csv")
-        df_acc = pd.read_csv(user_data)
+        df_acc = pd.read_csv(io.BytesIO(user_data), encoding="utf-8", sep=",")
+        print("========================")
+        print(list(df_acc))
+        print(df_acc.tail())
         df = cleaning(df_acc)
         
         # Magnitude dataframe
@@ -72,8 +75,8 @@ def predict(model_name):
             {"activity": activity[act[x]], "accuracy": acc[x][int(act[x])], "timestamp": times_ref.iloc[x]}
             } for x in range(len(act))]
 
-        # current_app.logger.warn(f"Modifed array is {predVals}")
-        # current_app.logger.warn("====================================+")
+        current_app.logger.warn(output)
+        current_app.logger.warn("====================================+")
 
     except Exception as e:
         current_app.logger.error(f"Caught an error : {e}", exc_info=True)

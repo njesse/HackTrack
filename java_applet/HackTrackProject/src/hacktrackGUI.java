@@ -166,6 +166,8 @@ public class hacktrackGUI implements ActionListener{
 		btnMultiMode = new JButton("Multi Mode");
 		btnMultiMode.setBounds(240, 6, 117, 29);
 		frame.getContentPane().add(btnMultiMode);
+		
+		
 		btnMultiMode.addActionListener(this);
 	}
 		
@@ -256,6 +258,11 @@ public class hacktrackGUI implements ActionListener{
 		btnMultiMode.setVisible(false);
 		btnDetails.setVisible(true);
 		showLegendForResultGraph();
+		JLabel lblJourneytimeBarRepresentation = new JLabel("Journey Time Bar Representation");
+		lblJourneytimeBarRepresentation.setHorizontalAlignment(SwingConstants.CENTER);
+		lblJourneytimeBarRepresentation.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblJourneytimeBarRepresentation.setBounds(133, 15, 328, 51);
+		frame.getContentPane().add(lblJourneytimeBarRepresentation);
 		
 		result = new ResultAnalytic(restResult);
 		
@@ -287,7 +294,7 @@ public class hacktrackGUI implements ActionListener{
 		int positionEnd = 15+ 45*(int) (Math.floor((result.getEndIndex()/10-1)));
 		lblEndtime.setBounds( positionEnd,150, 200, 20);
 		
-		lblAccuracy.setText("Best accuracy achieved: "+ result.getBestAccuracy());		
+		lblAccuracy.setText("Best accuracy achieved: "+ result.getBestAccuracy()+ "%");		
 		lblAccuracy.setBounds(50,150, 500, 200);
 		frame.repaint();
 	}
