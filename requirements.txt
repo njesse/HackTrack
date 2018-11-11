@@ -4,4 +4,6 @@ minio
 numpy
 pyyaml
 requests
+scipy
+scikit-learn
 uwsgi

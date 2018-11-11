@@ -1,6 +1,7 @@
 from flask import current_app, jsonify, request, abort, Response
 from . import api
 
+import numpy as np
 from time import time
 
 # Hard coded n nearest neighbours, can be changed to customisable
@@ -16,17 +17,43 @@ def predict(model_name):
         current_app.logger.warn("====================================+")
         current_app.logger.warn(f"Received following response : {user_data}")
 
-        # Modifying data
-        predVal = current_app.mlmodels.process(model_name, user_data)
+        temp_data = np.zeros((len(user_data), 8))
+        for i, data in enumerate(user_data):
+            temp_data[i, :3] = data[:3]
+            temp_data[i, 3] = np.linalg.norm(data[:3])
+            temp_data[i, 4:7] = data[3:]
+            temp_data[i, 7] = np.linalg.norm(data[3:])
 
-        current_app.logger.warn(f"Modifed array is {predVal}")
+        current_app.logger.warn(temp_data[:, 3], temp_data[:, 7])
+
+        # Modifying data
+        predVals = current_app.mlmodels.process(model_name, temp_data)
+
+        activity = {0: "walk", 1: "train"}
+
+        output = [{f"val{x}":
+            {"activity": activity[predVal], "accuracy": 82, "timestamp": "2018-11-11"}
+            } for x, predVal in enumerate(predVals)]
+
+        '''
+        predVal = [{"readingVal1":
+                       {"Act": "train", "accuracy": 85.2, "timestamp": "2018-12-01"}
+                   },
+                   {"readingVal2":
+                       {"Act": "walk", "accuracy": 65.34, "timestamp": "2011-08-02"}
+                   }, 
+                   {"readingVal3":
+                       {"Act": "bus", "accuracy": 32.2, "timestamp": "2042-02-11"}
+                   }]  
+        '''
+        current_app.logger.warn(f"Modifed array is {predVals}")
         current_app.logger.warn("====================================+")
 
     except Exception as e:
         current_app.logger.error(f"Caught an error : {e}", exc_info=True)
         abort(Response("Internal system error, please try again", 500))
 
-    return jsonify(output=predVal)
+    return jsonify(output=output)
 
 '''
 @api.route("/predict/<service_name>/<client_name>", methods=['POST'])

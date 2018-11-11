@@ -9,8 +9,10 @@ pp = pprint.PrettyPrinter(indent=4)
 content_type= "application/json"
 headers = {'content-type': content_type}
 
-input_data = [13.4, 32.54, 43.2323, 43.434, 54.65]
+# input_data = [13.4, 32.54, 43.2323, 43.434, 54.65]
 # input_data = [[13.4, 32.54, 43.2323, 43.434, 54.65], [44, 65.54, 324.43, 54.3, 2.322]]
+# input_data = [[-1.27947235e-01, -6.27358246e-01, 7.76403809e-01, 9.87527008e+01, -3.59243529e+02, -2.88740537e+02, 1.00635567e+00, 4.71358787e+02]]
+input_data = [[-1.27947235e-01, -6.27358246e-01, 7.76403809e-01, -3.59243529e+02, -2.88740537e+02, 1.00635567e+00]]
 data = json.dumps(input_data)
 
 #data = json.dumps(data)
